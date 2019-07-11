@@ -39,18 +39,18 @@
     ],
     "background": {
         "scripts": [
-            "js/base/extensions.js",
-            "js/utils.js",
-            "js/joindevices.js",
-            "js/windowmanagement.js",
-            "js/auth.js",
-            "js/base/deviceIdsAndDirectDevices.js",
-            "js/joinwebapi.js",
-            "js/chromenotifications.js",
-            "js/base/contextmenu.js",
-            "js/base/gcm.js",
-            "js/init.js",
-            "join.js"
+            // "js/base/extensions.js",
+            // "js/utils.js",
+            // "js/joindevices.js",
+            // "js/windowmanagement.js",
+            // "js/auth.js",
+            // "js/base/deviceIdsAndDirectDevices.js",
+            // "js/joinwebapi.js",
+            // "js/chromenotifications.js",
+            // "js/base/contextmenu.js",
+            // "js/base/gcm.js",
+            // "js/init.js",
+            // "join.js"
         ]
     },
     "oauth2": {
