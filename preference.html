@@ -38,22 +38,7 @@
             
             <div id="divExistingDevices">
                 <h6 class="font-weight-bold pl-0 mb-0 text-center ">Existing Devices:</h6>
-                <!-- <div class="container-fluid"> -->
-                <!--     <div class="form-inline"> -->
-                <!--         <label for="deviceName">Device Name:</label> -->
-                <!--         <input type="text" class="form-control" id="deviceName"> -->
-                        
-                <!--         <label for="apiToken">Api token:</label> -->
-                <!--         <input type="text" class="form-control" id="apiToken"> -->
-                        
-                <!--         <label for="pwd">Password:</label> -->
-                <!--         <input type="password" class="form-control" id="pwd"> -->
-                        
-                <!--         <button type="button" class="btn btn-primary">Save</button> -->
-                <!--         <button type="button" class="btn btn-danger">Delete</button> -->
-                <!--     </div> -->
-                <!-- </div> -->
-            </div>
+           </div>
         </fieldset>
 
 
@@ -63,7 +48,7 @@
             <div class="container-fluid">
                 <div class="form-inline">
                     <label for="deviceName">Device Name:</label>
-                    <select class="custom-select custom-select-mb" id="deviceName">
+                    <select class="custom-select custom-select-mb" id="cmdDeviceId">
                         <!-- <option selected>Select Target Device......</option> -->
                         <option value="1">One</option>
                         <option value="2">Two</option>
@@ -71,10 +56,10 @@
                     </select>
                     
                     <label for="apiToken">Command Name:</label>
-                    <input type="text" class="form-control" id="apiToken">
+                    <input type="text" class="form-control" id="cmdName">
                     <label for="pwd">Command:</label>
-                    <input type="password" class="form-control" id="pwd">
-                    <button type="button" class="btn btn-primary">Add Command</button>
+                    <input type="type" class="form-control" id="cmd">
+                    <button type="button" class="btn btn-primary" id="btnAddNewCmd">Add Command</button>
                 </div>
             </div>
 
@@ -85,10 +70,10 @@
             
             <div>
                 <h6 class="font-weight-bold pl-0 mb-0 text-center ">Existing Command:</h6>
-                <div class="container-fluid">
+                <div class="container-fluid" id="divExistingCmds">
                     <div class="form-inline">
                         <label for="deviceName">Device Name:</label>
-                        <select class="custom-select custom-select-mb" id="deviceName">
+                        <select class="custom-select custom-select-mb" id="cmdDeviceId">
                             <!-- <option selected>Select Target Device......</option> -->
                             <option value="1">One</option>
                             <option value="2">Two</option>
@@ -98,7 +83,7 @@
                         <label for="apiToken">Command Name:</label>
                         <input type="text" class="form-control" id="apiToken">
                         <label for="pwd">Command:</label>
-                        <input type="password" class="form-control" id="pwd">
+                        <input type="type" class="form-control" id="pwd">
                         <button type="button" class="btn btn-primary">Save</button>
                         <button type="button" class="btn btn-danger">Delete</button>
                     </div>

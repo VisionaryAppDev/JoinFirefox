@@ -32,6 +32,9 @@ $(function(){
         let pwd        = $("#pwd").val();
 
         
+        if(deviceId === "" ) return;
+        
+        
         // read and write back to storage
         var device = { name: deviceName, id: deviceId, apiToken: apiToken, pwd: pwd };
         var devices = await getDevicesFromLocalStorage();
@@ -80,4 +83,90 @@ $(function(){
                </div>
            </div>`;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Command
+
+    function addNewCmdToScreen(cmd) {
+        $("#divExistingCmds").append(getNewAddedCmdHtml(cmd));
+        removeCmdEvent(cmd.id);
+    }
+    
+
+    $("#btnAddNewCmd").click(async function(){
+        let deviceId = $("#cmdDeviceId").val();
+        let cmdId   = Date.now().toString();
+        let cmdName = $("#cmdName").val();
+        let cmdText   = $("#cmd").val();
+
+        
+        
+        // read and write back to storage
+        var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId };
+        var cmds = await getCmdsFromLocalStorage();
+        cmds[cmd.id] = cmd;
+        browser.storage.local.set({ cmds: cmds});
+
+        
+        // browser.storage.sync.set({'key': 'val'});
+        // browser.storage.managed.set({'key': 'val'});
+        addNewCmdToScreen(cmd);        
+    })
+
+    async function getCmdsFromLocalStorage() {
+        var cmds = await browser.storage.local.get("cmds");
+        cmds = typeof cmds.cmds === 'undefined' ? {} : cmds.cmds; 
+
+        return cmds;
+    }
+
+
+    async function removeCmdEvent(cmdId) {
+        $(`#btnDelCmd${cmdId}`).click(async function() {
+            $(`#cmdDivId${cmdId}`).remove();
+            
+            var cmds = await getCmdsFromLocalStorage();
+            delete cmds[cmdId];
+            browser.storage.local.set({ cmds: cmds});
+        });
+    }
+
+    
+
+
+    function getNewAddedCmdHtml(cmd) {
+        return `
+             <div class="form-inline" id="cmdDivId${cmd.id}">
+                 <label for="deviceName">Device Name:</label>
+                 <select class="custom-select custom-select-mb" id="cmdDeviceId">
+                     <!-- <option selected>Select Target Device......</option> -->
+                     <option value="1">One</option>
+                     <option value="2">Two</option>
+                     <option value="3">Three</option>
+                 </select>
+                 
+                 <label for="apiToken">Command Name:</label>
+                 <input type="text" class="form-control" id="cmdName${cmd.id}" value="${cmd.name}">
+                 <label for="cmd">Command:</label>
+                 <input type="text" class="form-control" id="cmd${cmd.id}" value="${cmd.cmd}">
+                 <button type="button" class="btn btn-primary">Save</button>
+                 <button type="button" class="btn btn-danger" id="btnDelCmd${cmd.id}">Delete</button>
+             </div>
+        `;
+    }; 
+
+
+    
 })
