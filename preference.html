@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Supa</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="lib/bootstrap-4.3.1-dist/css/bootstrap.css"/>
+  <link rel="stylesheet" href="custom/style.css"/>
+</head>
+<body>
+
+    
+    <div class="container-fluid">
+        <!-- Add Device -->
+        <fieldset class="border border-dark p-2">
+            <h6 class="font-weight-bold pl-0 mb-0">Add Devices:</h6>
+            <div class="container-fluid">
+                <div class="form-inline">
+                    <label for="deviceName">Device Name:</label>
+                    <input type="text" class="form-control" id="deviceName">
+
+                    <label for="deviceName">Device Id:</label>
+                    <input type="text" class="form-control" id="deviceId">
+                    
+                    <label for="apiToken">Api token:</label>
+                    <input type="text" class="form-control" id="apiToken">
+                    
+                    <label for="pwd">Password:</label>
+                    <input type="password" class="form-control" id="pwd">
+                    
+                    <button type="button" class="btn btn-primary" id="btnAddNewDevice">Add Device</button>
+                </div>
+            </div>
+
+            
+            <hr>
+            <br>
+
+            
+            <div id="divExistingDevices">
+                <h6 class="font-weight-bold pl-0 mb-0 text-center ">Existing Devices:</h6>
+                <div class="container-fluid">
+                    <div class="form-inline">
+                        <label for="deviceName">Device Name:</label>
+                        <input type="text" class="form-control" id="deviceName">
+                        
+                        <label for="apiToken">Api token:</label>
+                        <input type="text" class="form-control" id="apiToken">
+                        
+                        <label for="pwd">Password:</label>
+                        <input type="password" class="form-control" id="pwd">
+                        
+                        <button type="button" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+
+        <!-- Add Command -->
+        <fieldset class="border border-dark p-2">
+            <h6 class="font-weight-bold pl-0 mb-0">Add Commands:</h6>
+            <div class="container-fluid">
+                <div class="form-inline">
+                    <label for="deviceName">Device Name:</label>
+                    <select class="custom-select custom-select-mb" id="deviceName">
+                        <!-- <option selected>Select Target Device......</option> -->
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                    
+                    <label for="apiToken">Command Name:</label>
+                    <input type="text" class="form-control" id="apiToken">
+                    <label for="pwd">Command:</label>
+                    <input type="password" class="form-control" id="pwd">
+                    <button type="button" class="btn btn-primary">Add Command</button>
+                </div>
+            </div>
+
+            
+            <hr>
+            <br>
+
+            
+            <div>
+                <h6 class="font-weight-bold pl-0 mb-0 text-center ">Existing Command:</h6>
+                <div class="container-fluid">
+                    <div class="form-inline">
+                        <label for="deviceName">Device Name:</label>
+                        <select class="custom-select custom-select-mb" id="deviceName">
+                            <!-- <option selected>Select Target Device......</option> -->
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                        
+                        <label for="apiToken">Command Name:</label>
+                        <input type="text" class="form-control" id="apiToken">
+                        <label for="pwd">Command:</label>
+                        <input type="password" class="form-control" id="pwd">
+                        <button type="button" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+
+
+
+
+
+
+        
+
+        
+
+        <!-- Test Command -->
+        <fieldset class="border border-dark p-2">
+            <h6 class="font-weight-bold pl-0 mb-0">Test Command:</h6>
+            <div class="container-fluid">
+                <div class="form-inline">
+                    <textarea class="form-control" rows="10" cols="500"> </textarea>
+                    <label for="deviceName">Device Name:</label>
+                    <select class="custom-select custom-select-mb" id="deviceName">
+                        <option selected>Select Target Device......</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                    <button type="button" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+
+
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/bootstrap-4.3.1-dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="add-new-device.js"></script>
+
+</body>
+</html>
