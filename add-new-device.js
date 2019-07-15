@@ -99,6 +99,16 @@ $(function(){
 
     // Command
 
+    initCmds();
+
+    
+    async function initCmds(){
+        var cmds = await getCmdsFromLocalStorage();
+        for (const [cmdId, cmd] of Object.entries(cmds)) {
+            addNewCmdToScreen(cmd);
+        }
+    }
+
     function addNewCmdToScreen(cmd) {
         $("#divExistingCmds").append(getNewAddedCmdHtml(cmd));
         removeCmdEvent(cmd.id);
