@@ -22,6 +22,7 @@ $(function(){
     function addNewDeviceToScreen(device) {
         $("#divExistingDevices").append(getNewAddedDeviceHtml(device));
         removeDeviceEvent(device.id);
+        updateDeviceEvent(device.id);
     }
     
     
@@ -58,6 +59,22 @@ $(function(){
         });
     }
 
+    async function updateDeviceEvent(deviceId) {
+        $(`#btnUpdateDevice${deviceId}`).click(async function(){
+            alert(deviceId);
+            if(deviceId === "" ) return;
+            
+            let deviceName = $(`#deviceName${deviceId}`).val();
+            let apiToken   = $(`#apiToken${deviceId}`).val();
+            let pwd        = $(`#pwd${deviceId}`).val();
+            
+            var device = { name: deviceName, id: deviceId, apiToken: apiToken, pwd: pwd };
+            var devices = await getDevicesFromLocalStorage();
+            devices[device.id] = device;
+            browser.storage.local.set({ devices: devices});
+        });
+    }
+
     
     
 
@@ -78,7 +95,7 @@ $(function(){
                    <label for="pwd">Password:</label>
                    <input type="password" class="form-control" id="pwd${device.id}" value=${device.pwd}>
 
-                   <button type="button" class="btn btn-primary">Save</button>
+                   <button type="button" class="btn btn-primary" id="btnUpdateDevice${device.id}">Save</button>
                    <button type="button" class="btn btn-danger" id="btnDelDevice${device.id}">Delete</button>
                </div>
            </div>`;
@@ -103,14 +120,24 @@ $(function(){
 
     
     async function initCmds(){
+        // 
+        // $("#cmdDeviceId option").remove();
+        var devices = await getDevicesFromLocalStorage();
+        for (const [deviceId, device] of Object.entries(devices)) {
+            $("#cmdDeviceId").append(new Option(device.name, device.id));
+        }
+
+        
+        //
         var cmds = await getCmdsFromLocalStorage();
         for (const [cmdId, cmd] of Object.entries(cmds)) {
             addNewCmdToScreen(cmd);
         }
     }
 
-    function addNewCmdToScreen(cmd) {
-        $("#divExistingCmds").append(getNewAddedCmdHtml(cmd));
+    async function addNewCmdToScreen(cmd) {
+        var newAddedCmdHtml = await getNewAddedCmdHtml(cmd);
+        $("#divExistingCmds").append(newAddedCmdHtml);
         removeCmdEvent(cmd.id);
     }
     
@@ -156,22 +183,24 @@ $(function(){
     
 
 
-    function getNewAddedCmdHtml(cmd) {
+    async function getNewAddedCmdHtml(cmd) {
+        var devices = await getDevicesFromLocalStorage();
         return `
              <div class="form-inline" id="cmdDivId${cmd.id}">
                  <label for="deviceName">Device Name:</label>
                  <select class="custom-select custom-select-mb" id="cmdDeviceId">
-                     <!-- <option selected>Select Target Device......</option> -->
-                     <option value="1">One</option>
-                     <option value="2">Two</option>
-                     <option value="3">Three</option>
+                     ${Object.entries(devices).map(device=>
+                       `<option value="${device[1].id}" ${cmd.deviceId == device[1].id ? "selected" : ""}>
+                            ${device[1].name}
+                        </option>
+                     `)}                   
                  </select>
                  
                  <label for="apiToken">Command Name:</label>
                  <input type="text" class="form-control" id="cmdName${cmd.id}" value="${cmd.name}">
                  <label for="cmd">Command:</label>
                  <input type="text" class="form-control" id="cmd${cmd.id}" value="${cmd.cmd}">
-                 <button type="button" class="btn btn-primary">Save</button>
+                 <button type="button" class="btn btn-primary" id="btnSaveCmd${cmd.id}">Save</button>
                  <button type="button" class="btn btn-danger" id="btnDelCmd${cmd.id}">Delete</button>
              </div>
         `;
