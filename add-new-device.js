@@ -61,12 +61,19 @@ $(function(){
 
     async function updateDeviceEvent(deviceId) {
         $(`#btnUpdateDevice${deviceId}`).click(async function(){
-            alert(deviceId);
+            // alert(deviceId);
             if(deviceId === "" ) return;
-            
+
+            // let newDeviceId = $(`#deviceId${deviceId}`).val();
             let deviceName = $(`#deviceName${deviceId}`).val();
             let apiToken   = $(`#apiToken${deviceId}`).val();
             let pwd        = $(`#pwd${deviceId}`).val();
+
+            // TODO:
+            // allow to update device id,
+            // set deviceId = new device id from form
+            // delete old data because add new device id will create another record
+            // loop through cmds and update 
             
             var device = { name: deviceName, id: deviceId, apiToken: apiToken, pwd: pwd };
             var devices = await getDevicesFromLocalStorage();
@@ -139,6 +146,7 @@ $(function(){
         var newAddedCmdHtml = await getNewAddedCmdHtml(cmd);
         $("#divExistingCmds").append(newAddedCmdHtml);
         removeCmdEvent(cmd.id);
+        updateCmdEvent(cmd.id);
     }
     
 
@@ -180,6 +188,22 @@ $(function(){
         });
     }
 
+     async function updateCmdEvent(cmdId) {
+        $(`#btnSaveCmd${cmdId}`).click(async function() {
+            let deviceId = $(`#cmdDeviceId${cmdId}`).val();
+            let cmdName = $(`#cmdName${cmdId}`).val();
+            let cmdText   = $(`#cmd${cmdId}`).val();
+
+        
+        
+            // read and write back to storage
+            var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId };
+            var cmds = await getCmdsFromLocalStorage();
+            cmds[cmd.id] = cmd;
+            browser.storage.local.set({ cmds: cmds});
+        });
+    }
+
     
 
 
@@ -188,7 +212,7 @@ $(function(){
         return `
              <div class="form-inline" id="cmdDivId${cmd.id}">
                  <label for="deviceName">Device Name:</label>
-                 <select class="custom-select custom-select-mb" id="cmdDeviceId">
+                 <select class="custom-select custom-select-mb" id="cmdDeviceId${cmd.id}">
                      ${Object.entries(devices).map(device=>
                        `<option value="${device[1].id}" ${cmd.deviceId == device[1].id ? "selected" : ""}>
                             ${device[1].name}
@@ -204,8 +228,26 @@ $(function(){
                  <button type="button" class="btn btn-danger" id="btnDelCmd${cmd.id}">Delete</button>
              </div>
         `;
-    }; 
+    };
 
 
+    initTestDevices();
     
+    async function initTestDevices(){
+        var devices = await getDevicesFromLocalStorage();
+        Object.entries(devices).forEach((device, ind)=> {
+            var option = new Option(device[1].name, `testDevice${device[1].id}`);
+            $("#testDevices").append(option);
+            // option.data(device);
+            option.setAttribute('data-id', device[1])
+        });
+       
+        console.log("")
+    } 
+    
+    function btnSendTestCmd(){
+        $("#btnSendTestCmd").click(async function(){
+            alert("")
+        })
+    }
 })
