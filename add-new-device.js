@@ -244,10 +244,79 @@ $(function(){
        
         console.log("")
     } 
+
+    sendTestCmdEvent();
     
-    function btnSendTestCmd(){
+    async function sendTestCmdEvent(){
         $("#btnSendTestCmd").click(async function(){
-            alert("")
+            var testCmd = $("#testCmd").val().trim();
+            var selectedDevice = $("#testDevices").val();
+            var device = {};
+
+
+            var devices = await getDevicesFromLocalStorage();
+            for (const [deviceId, device_] of Object.entries(devices)) {
+                if(selectedDevice == `testDevice${device_.id}`)
+                {
+                    device = device_;
+                }
+            }
+
+            var pwd = device.pwd != "" ? `&password=${device.pwd}` : "";
+            var cmd = `${device.apiToken}&${testCmd}${pwd}`;
+            fetch(cmd)
+                .then(function(response) {
+                    return response;
+                })
+                .then(function(myJson) {
+                    console.log((myJson));
+                });
         })
     }
+
+
+
+
+    //// Context menu
+    function onCreated() {
+        if (browser.runtime.lastError) {
+            console.log(`Error: ${browser.runtime.lastError}`);
+        } else {
+            console.log("Item created successfully");
+        }
+    }
+    
+    browser.menus.create({
+        id: "remove-me",
+        title: "test title",
+        contexts: ["all"]
+    }, onCreated);
+    
+    browser.menus.create({
+        id: "separator1-1",
+        type: "separator",
+        contexts: ["all"]
+    }, onCreated);
+    
+    browser.menus.create({
+        id: "remove1-me",
+        title: "test title",
+        contexts: ["all"]
+    }, onCreated);
+
+  browser.contextMenus.create({
+    id: "copy-link-to-clipboard",
+    title: "Copy link to clipboard",
+    contexts: ["link"],
+});
+
+
+    browser.menus.onClicked.addListener((info, tab) => {
+        switch (info.menuItemId) {
+        case "remove-me":
+            var removing = browser.menus.remove(info.menuItemId);
+            removing.then(onRemoved, onError);
+            break;
+        }
+    });
 })

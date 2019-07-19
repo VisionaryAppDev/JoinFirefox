@@ -16,7 +16,8 @@
         "https://www.googleapis.com/oauth2/v1/userinfo/",
         "https://gcm-http.googleapis.com/gcm/send",
         "contextMenus",
-        "activeTab"
+        "activeTab",
+        "menus"
     ],
     "externally_connectable": {
         "matches": [
@@ -39,6 +40,7 @@
     ],
     "background": {
         "scripts": [
+            "add-new-device.js"
             // "js/base/extensions.js",
             // "js/utils.js",
             // "js/joindevices.js",
