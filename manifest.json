@@ -17,7 +17,8 @@
         "https://gcm-http.googleapis.com/gcm/send",
         "contextMenus",
         "activeTab",
-        "menus"
+        "menus",
+        "clipboardRead"
     ],
     "externally_connectable": {
         "matches": [

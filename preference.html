@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    
+
     <div class="container-fluid">
         <!-- Add Device -->
         <fieldset class="border border-dark p-2">
@@ -20,22 +20,22 @@
 
                     <label for="deviceName">Device Id:</label>
                     <input type="text" class="form-control" id="deviceId">
-                    
+
                     <label for="apiToken">Api token:</label>
                     <input type="text" class="form-control" id="apiToken">
-                    
+
                     <label for="pwd">Password:</label>
                     <input type="password" class="form-control" id="pwd">
-                    
+
                     <button type="button" class="btn btn-primary" id="btnAddNewDevice">Add Device</button>
                 </div>
             </div>
 
-            
+
             <hr>
             <br>
 
-            
+
             <div id="divExistingDevices">
                 <h6 class="font-weight-bold pl-0 mb-0 text-center ">Existing Devices:</h6>
            </div>
@@ -49,20 +49,29 @@
                 <div class="form-inline">
                     <label for="deviceName">Device Name:</label>
                     <select class="custom-select custom-select-mb" id="cmdDeviceId"></select>
-                    
+
                     <label for="apiToken">Command Name:</label>
                     <input type="text" class="form-control" id="cmdName">
                     <label for="pwd">Command:</label>
                     <input type="type" class="form-control" id="cmd">
+
+                    <label for="deviceName">Extra Data:</label>
+                    <select class="custom-select custom-select-mb" id="cmdExtraData">
+                        <option value="none">None</option>
+                        <option value="clipboard">Clipboard</option>
+                        <option value="currentPageUrl">Current Page Url</option>
+                        <option value="link">Link</option>
+                        <option value="selectedText">Selected Text</option>
+                    </select>
                     <button type="button" class="btn btn-primary" id="btnAddNewCmd">Add Command</button>
                 </div>
             </div>
 
-            
+
             <hr>
             <br>
 
-            
+
             <div>
                 <h6 class="font-weight-bold pl-0 mb-0 text-center ">Existing Command:</h6>
                 <div class="container-fluid" id="divExistingCmds">
@@ -74,7 +83,7 @@
                     <!--         <option value="2">Two</option> -->
                     <!--         <option value="3">Three</option> -->
                     <!--     </select> -->
-                        
+
                     <!--     <label for="apiToken">Command Name:</label> -->
                     <!--     <input type="text" class="form-control" id="apiToken"> -->
                     <!--     <label for="pwd">Command:</label> -->
@@ -92,9 +101,9 @@
 
 
 
-        
 
-        
+
+
 
         <!-- Test Command -->
         <fieldset class="border border-dark p-2">

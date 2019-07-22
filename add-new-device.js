@@ -155,11 +155,12 @@ $(function () {
         let cmdId = Date.now().toString();
         let cmdName = $("#cmdName").val();
         let cmdText = $("#cmd").val();
+        let cmdExtraData = $("#cmdExtraData").val();
 
 
 
         // read and write back to storage
-        var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId };
+        var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId, extraData: cmdExtraData };
         var cmds = await getCmdsFromLocalStorage();
         cmds[cmd.id] = cmd;
         browser.storage.local.set({ cmds: cmds });
@@ -193,11 +194,12 @@ $(function () {
             let deviceId = $(`#cmdDeviceId${cmdId}`).val();
             let cmdName = $(`#cmdName${cmdId}`).val();
             let cmdText = $(`#cmd${cmdId}`).val();
+            let cmdExtraData = $(`#cmdExtraData${cmdId}`).val();
 
 
 
             // read and write back to storage
-            var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId };
+            var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId, extraData: cmdExtraData };
             var cmds = await getCmdsFromLocalStorage();
             cmds[cmd.id] = cmd;
             browser.storage.local.set({ cmds: cmds });
@@ -224,6 +226,15 @@ $(function () {
                  <input type="text" class="form-control" id="cmdName${cmd.id}" value="${cmd.name}">
                  <label for="cmd">Command:</label>
                  <input type="text" class="form-control" id="cmd${cmd.id}" value="${cmd.cmd}">
+
+                  <label for="deviceName">Extra Data:</label>
+                    <select class="custom-select custom-select-mb" id="cmdExtraData${cmd.id}">
+                        <option value="none" ${cmd.extraData == "none" ? "selected" : ""}>None</option>
+                        <option value="clipboard" ${cmd.extraData == "clipboard" ? "selected" : ""}>Clipboard</option>
+                        <option value="currentPageUrl" ${cmd.extraData == "currentPageUrl" ? "selected" : ""}>Current Page Url</option>
+                        <option value="link" ${cmd.extraData == "link" ? "selected" : ""}>Link</option>
+                        <option value="selectedText" ${cmd.extraData == "selectedText" ? "selected" : ""}>Selected Text</option>
+                    </select>
                  <button type="button" class="btn btn-primary" id="btnSaveCmd${cmd.id}">Save</button>
                  <button type="button" class="btn btn-danger" id="btnDelCmd${cmd.id}">Delete</button>
              </div>
@@ -285,7 +296,7 @@ $(function () {
             console.log(`Error: ${browser.runtime.lastError}`);
         } else {
             console.log("Item created successfully");
-            
+
         }
     }
     initDevicesMenu();
@@ -318,41 +329,105 @@ $(function () {
     async function initCmdsMenu() {
         var cmds = await getCmdsFromLocalStorage();
         for (const [cmdId, cmd] of Object.entries(cmds)) {
-            browser.menus.create({
-                id: `cmd${cmd.id}`,
-                parentId: `device${cmd.deviceId}`,
-                title: `cmd${cmd.name}`,
-                contexts: ["all"],
-            }, onCreated);
+            if(cmd.extraData == "link"){
+                browser.contextMenus.create({
+                    id: `cmd${cmdId}`,
+                    parentId: `device${cmd.deviceId}`,
+                    title: cmd.name,
+                    contexts: ["link"],
+                });
+            }
+            else {
+                browser.menus.create({
+                    id: `cmd${cmd.id}`,
+                    parentId: `device${cmd.deviceId}`,
+                    title: `cmd${cmd.name}`,
+                    contexts: ["all"],
+                }, onCreated);
+            }
         }
     }
 
 
-    browser.menus.create({
-        id: "separator1-1",
-        type: "separator",
-        contexts: ["all"]
-    }, onCreated);
+    // browser.menus.create({
+    //     id: "separator1-1",
+    //     type: "separator",
+    //     contexts: ["all"]
+    // }, onCreated);
 
 
 
-    browser.contextMenus.create({
-        id: "copy-link-to-clipboard",
-        title: "Copy link to clipboard",
-        contexts: ["link"],
-    });
+    // browser.contextMenus.create({
+    //     id: "copy-link-to-clipboard",
+    //     title: "Copy link to clipboard",
+    //     contexts: ["link"],
+    // });
 
 
     browser.menus.onClicked.addListener((info, tab) => {
-        switch (info.menuItemId) {
-            case "remove-me":
-                var removing = browser.menus.remove(info.menuItemId);
-                removing.then(onRemoved, onError);
-                break;
-        }
-        console.log(tab);
-        console.log(info);
+        // switch (info.menuItemId) {
+        //     case "remove-me":
+        //         var removing = browser.menus.remove(info.menuItemId);
+        //         removing.then(onRemoved, onError);
+        //         break;
+        // }
 
-        // browser.tabs.getCurrent();
+
+
+
+        //
+        getCmdsFromLocalStorage().then(function(cmds){
+            for (const [cmdId, cmd] of Object.entries(cmds)) {
+                if (typeof cmd  !== 'undefined' && cmd.id != "" && info.menuItemId.includes(cmd.id))
+                {
+                    console.log(cmd)
+                    getDevicesFromLocalStorage().then(devices => {
+                        for (const [deviceId, device] of Object.entries(devices)) {
+                            if (cmd.deviceId==device.id){
+
+                                // TODO: send message here
+                            }
+                        }
+                    });
+
+
+                    return;
+                }
+            }
+        });
+
+
+        // console.log(tab);
+        // console.log(info);
+
+        // Get the select page
+        console.log("he "+content.getSelection().toString());
+        console.log("pas"+document.execCommand("paste"))
+
+
+
+        // read clipboard
+        // navigator.clipboard.readText().then(text => text);
+
+
+        // Get current page url
+        // console.log(await browser.tabs.getCurrent());
+
+
+
     });
+
+    function getExtraData(cmd) {
+        if(cmd.extraData === "none")
+            return "";
+        else if (cmd.extraData === "clipboard")
+            return "";
+        else if (cmd.extraData === "currentPageUrl")
+            return "";
+        else if (cmd.extraData === "link")
+            return "";
+        else if (cmd.extraData === "selectedText")
+            return "";
+
+    }
 })
