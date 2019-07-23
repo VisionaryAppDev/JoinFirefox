@@ -11,7 +11,7 @@ $(function () {
 
     async function getDevicesFromLocalStorage() {
         var devices = await browser.storage.local.get("devices");
-        devices = typeof devices.devices === 'undefined' ? {} : devices.devices;
+        devices = devices.devices || {};
 
         return devices;
     }
@@ -57,6 +57,7 @@ $(function () {
             browser.storage.local.set({ devices: devices });
         });
     }
+
 
     async function updateDeviceEvent(deviceId) {
         $(`#btnUpdateDevice${deviceId}`).click(async function () {
@@ -155,6 +156,9 @@ $(function () {
         let cmdText = $("#cmd").val();
 
 
+        if (!cmdText || !cmdName)
+            return;
+
 
         // read and write back to storage
         var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId };
@@ -240,35 +244,24 @@ $(function () {
             // option.data(device);
             option.setAttribute('data-id', device[1])
         });
-
-        console.log("")
     }
 
     sendTestCmdEvent();
 
     async function sendTestCmdEvent() {
-        $("#btnSendTestCmd").click(async function () {
-            var testCmd = $("#testCmd").val().trim();
+        $("#btnSendTestCmd").click(async function (info, tab) {
             var selectedDevice = $("#testDevices").val();
-            var device = {};
-
-
             var devices = await getDevicesFromLocalStorage();
-            for (const [deviceId, device_] of Object.entries(devices)) {
-                if (selectedDevice == `testDevice${device_.id}`) {
-                    device = device_;
+
+            for (const [deviceId, device] of Object.entries(devices)) {
+                if (selectedDevice == `testDevice${device.id}`) {
+                    var cmd = $("#testCmd").val();
+                    var requestUrl = await prepareSendCmd(device, cmd, info);
+
+                    sendCommand(requestUrl);
+                    return;
                 }
             }
-
-            var pwd = device.pwd != "" ? `&password=${device.pwd}` : "";
-            var cmd = `${device.apiToken}&${testCmd}${pwd}`;
-            fetch(cmd)
-                .then(function (response) {
-                    return response;
-                })
-                .then(function (myJson) {
-                    console.log((myJson));
-                });
         })
     }
 
@@ -277,14 +270,10 @@ $(function () {
 
     //// Context menu
     async function onCreated() {
-        var currentUrl = await browser.tabs.getCurrent().url;
-        console.log(await browser.tabs.getCurrent());
-
         if (browser.runtime.lastError) {
             console.log(`Error: ${browser.runtime.lastError}`);
         } else {
             console.log("Item created successfully");
-
         }
     }
     initDevicesMenu();
@@ -292,15 +281,15 @@ $(function () {
 
 
     async function initDevicesMenu() {
-        var devices = await getDevicesFromLocalStorage();
-        for (const [deviceId, device] of Object.entries(devices)) {
+        Object.entries(await getDevicesFromLocalStorage()).forEach(device => {
             browser.menus.create({
-                id: `device${device.id}`,
-                title: device.name,
+                id: `device${device[1].id}`,
+                title: device[1].name,
                 contexts: ["all"],
             }, onCreated);
-        }
+        })
     }
+
 
     async function initCmdsMenu() {
         var cmds = await getCmdsFromLocalStorage();
@@ -315,47 +304,50 @@ $(function () {
     }
 
 
-
-    browser.menus.onClicked.addListener((info, tab) => {
-        getCmdsFromLocalStorage().then(function (cmds) {
-            for (const [cmdId, cmd] of Object.entries(cmds)) {
-                if (typeof cmd !== 'undefined' && cmd.id != "" && info.menuItemId.includes(cmd.id)) {
-                    console.log(cmd)
-                    getDevicesFromLocalStorage().then(async devices => {
-                        for (const [deviceId, device] of Object.entries(devices)) {
-                            if (cmd.deviceId == device.id) {
-                                var basedUrl = device.targetedApp == "join" ? "https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?" : "https://autoremotejoaomgcd.appspot.com/sendmessage?key=cYOhJMpofbU:APA91bEqZryBbjlB_VDJGPMuOLUrxsWVKt8usbwUk-M0QrNEMwjOPb7WXmQuwpHEO_S81IK8rO6WwZN598VHQbyXl-XTvkoCk31Jb6ZLsMbqIb-ILCCuzAAQXnbObqloDrxvYPD8M28C&";
-                                var formattedCmd = await getCmd(cmd, info, tab);
-                                var deviceId1 = device.targetedApp == "join" ? `deviceId=${deviceId}` : ``;
-                                var pwd = device.pwd != "" ? `&password=${device.pwd}` : "";
-                                var apiToken = device.apiToken != "" ? `&apikey=${device.apiToken}` : `key=${deviceId}`;
-                                var cmd1 = `${basedUrl}${deviceId1}${apiToken}${pwd}&${formattedCmd}`;
-
-                                fetch(cmd1)
-                                    .then(function (response) {
-                                        return response;
-                                    })
-                                    .then(function (myJson) {
-                                        console.log((myJson));
-                                    });
-                            }
-                        }
-                    });
-
-                    return;
-                }
-            }
-        });
+    browser.menus.onClicked.addListener(async (info, tab) => {
+        var cmd = Object.entries(await getCmdsFromLocalStorage()).filter(cmd => cmd[1].id && info.menuItemId.includes(cmd[1].id))[0][1];
+        var device = Object.entries(await getDevicesFromLocalStorage()).filter(device => cmd.deviceId == device[1].id)[0][1];
+        var requestUrl = await prepareSendCmd(device, cmd.cmd, info);
+        sendCommand(requestUrl);
     });
 
 
-    async function getCmd(cmd, info, tab) {
-        cmd.cmd = cmd.cmd.replace(/{{clipboard}}/g, await navigator.clipboard.readText());
-        cmd.cmd = cmd.cmd.replace(/{{currentPageUrl}}/g, (await browser.tabs.getCurrent()).url);
-        cmd.cmd = cmd.cmd.replace(/{{link}}/g, escapeHTML(info.linkUrl));
-        cmd.cmd = cmd.cmd.replace(/{{selectedText}}/g, info.selectionText);
+    async function prepareSendCmd(device, cmd, info) {
+        var basedUrl = getTargetedAppBasedUrl(device.targetedApp).trim();
+        var deviceId = device.targetedApp == "join" ? `deviceId=${device.id}` : ``;
+        var apiToken = device.apiToken ? `&apikey=${device.apiToken}` : `key=${device.id}`;
+        var pwd = device.pwd ? `&password=${device.pwd}` : "";
+        var formattedCmd = await getCmd(cmd, info);
 
-        return cmd.cmd;
+        // Requested Url
+        return `${basedUrl}${deviceId}${apiToken}${pwd}&${formattedCmd}`;
+    }
+
+
+    async function sendCommand(requestUrl) {
+        console.log("Request Url:: " + requestUrl);
+
+        fetch(requestUrl).then(function (response) {
+            console.log(response);
+        })
+    }
+
+
+    function getTargetedAppBasedUrl(targetedApp) {
+        if (targetedApp.toUpperCase() == "JOIN")
+            return "https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?";
+        else if (targetedApp.toUpperCase() == "AUTOREMOTE")
+            return "https://autoremotejoaomgcd.appspot.com/sendmessage?key=cYOhJMpofbU:APA91bEqZryBbjlB_VDJGPMuOLUrxsWVKt8usbwUk-M0QrNEMwjOPb7WXmQuwpHEO_S81IK8rO6WwZN598VHQbyXl-XTvkoCk31Jb6ZLsMbqIb-ILCCuzAAQXnbObqloDrxvYPD8M28C&";
+    }
+
+
+    async function getCmd(cmd, info) {
+        return cmd
+            .replace(/{{clipboard}}/g, await navigator.clipboard.readText())
+            .replace(/{{currentPageUrl}}/g, (await browser.tabs.getCurrent()).url)
+            .replace(/{{link}}/g, escapeHTML(info.linkUrl))
+            .replace(/{{selectedText}}/g, info.selectionText)
+            .trim();
     }
 
 
