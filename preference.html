@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Supa</title>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="lib/bootstrap-4.3.1-dist/css/bootstrap.css"/>
-  <link rel="stylesheet" href="custom/style.css"/>
+    <title>Supa</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="lib/bootstrap-4.3.1-dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="custom/style.css" />
 </head>
+
 <body>
 
 
@@ -17,6 +19,12 @@
                 <div class="form-inline">
                     <label for="deviceName">Device Name:</label>
                     <input type="text" class="form-control" id="deviceName">
+
+                    <label for="targetedApp">Targeted App:</label>
+                    <select class="custom-select custom-select-mb" id="targetedApp">
+                        <option value="join" selected>Join</option>
+                        <option value="autoremote">Autoremote</option>
+                    </select>
 
                     <label for="deviceName">Device Id:</label>
                     <input type="text" class="form-control" id="deviceId">
@@ -38,7 +46,7 @@
 
             <div id="divExistingDevices">
                 <h6 class="font-weight-bold pl-0 mb-0 text-center ">Existing Devices:</h6>
-           </div>
+            </div>
         </fieldset>
 
 
@@ -110,7 +118,8 @@
             <h6 class="font-weight-bold pl-0 mb-0">Test Command:</h6>
             <div class="container-fluid">
                 <div class="form-inline">
-                    <textarea class="form-control" rows="10" cols="500" id="testCmd" placeholder="message=my command&another_cmd=cmd"></textarea>
+                    <textarea class="form-control" rows="10" cols="500" id="testCmd"
+                        placeholder="message=my command&another_cmd=cmd"></textarea>
                     <label for="deviceName">Device Name:</label>
                     <select class="custom-select custom-select-mb" id="testDevices"></select>
                     <button type="button" class="btn btn-primary" id="btnSendTestCmd">Send</button>
@@ -125,4 +134,5 @@
     <script type="text/javascript" src="add-new-device.js"></script>
 
 </body>
+
 </html>

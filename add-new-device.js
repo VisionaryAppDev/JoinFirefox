@@ -1,7 +1,5 @@
 $(function () {
-
     initDevices();
-
 
     async function initDevices() {
         var devices = await getDevicesFromLocalStorage();
@@ -31,13 +29,14 @@ $(function () {
         let deviceId = $("#deviceId").val();
         let apiToken = $("#apiToken").val();
         let pwd = $("#pwd").val();
+        let targetedApp = $("#targetedApp").val();
 
 
         if (deviceId === "") return;
 
 
         // read and write back to storage
-        var device = { name: deviceName, id: deviceId, apiToken: apiToken, pwd: pwd };
+        var device = { name: deviceName, targetedApp: targetedApp, id: deviceId, apiToken: apiToken, pwd: pwd };
         var devices = await getDevicesFromLocalStorage();
         devices[device.id] = device;
         browser.storage.local.set({ devices: devices });
@@ -68,6 +67,8 @@ $(function () {
             let deviceName = $(`#deviceName${deviceId}`).val();
             let apiToken = $(`#apiToken${deviceId}`).val();
             let pwd = $(`#pwd${deviceId}`).val();
+            let targetedApp = $(`#targetedApp${deviceId}`).val();
+
 
             // TODO:
             // allow to update device id,
@@ -75,7 +76,7 @@ $(function () {
             // delete old data because add new device id will create another record
             // loop through cmds and update
 
-            var device = { name: deviceName, id: deviceId, apiToken: apiToken, pwd: pwd };
+            var device = { name: deviceName, targetedApp: targetedApp, id: deviceId, apiToken: apiToken, pwd: pwd };
             var devices = await getDevicesFromLocalStorage();
             devices[device.id] = device;
             browser.storage.local.set({ devices: devices });
@@ -92,6 +93,12 @@ $(function () {
                <div class="form-inline">
                    <label for="deviceName">Device Name:</label>
                    <input type="text" class="form-control" id="deviceName${device.id}" value="${device.name}">
+
+                   <label for="targetApp">Target App:</label>
+                    <select class="custom-select custom-select-mb" id="targetedApp${device.id}">
+                        <option value="join" ${device.targetedApp == "join" ? "selected" : ""}>Join</option>
+                        <option value="autoremote" ${device.targetedApp == "autoremote" ? "selected" : ""}>Autoremote</option>
+                    </select>
 
                    <label for="deviceName">Device Id:</label>
                    <input type="text" class="form-control" id="deviceId${device.id}" value="${device.id}">
@@ -116,13 +123,9 @@ $(function () {
 
 
 
-
-
-
-
-
-    // Command
-
+    /********************************/
+    /************ Command ***********/
+    /********************************/
     initCmds();
 
 
@@ -311,123 +314,70 @@ $(function () {
                 title: device.name,
                 contexts: ["all"],
             }, onCreated);
-
-            // clipboard: -text. to phone clip
-
-            // link: -text, -open link
-
-            // selected text: -
-
-            // current page: -text, -   link
-
-            // download youtube
-
-            //
         }
     }
 
     async function initCmdsMenu() {
         var cmds = await getCmdsFromLocalStorage();
         for (const [cmdId, cmd] of Object.entries(cmds)) {
-            if(cmd.extraData == "link"){
-                browser.contextMenus.create({
-                    id: `cmd${cmdId}`,
-                    parentId: `device${cmd.deviceId}`,
-                    title: cmd.name,
-                    contexts: ["link"],
-                });
-            }
-            else {
-                browser.menus.create({
-                    id: `cmd${cmd.id}`,
-                    parentId: `device${cmd.deviceId}`,
-                    title: `cmd${cmd.name}`,
-                    contexts: ["all"],
-                }, onCreated);
-            }
+            browser.menus.create({
+                id: `cmd${cmd.id}`,
+                parentId: `device${cmd.deviceId}`,
+                title: `${cmd.name}`,
+                contexts: ["all"],
+            }, onCreated);
         }
     }
 
 
-    // browser.menus.create({
-    //     id: "separator1-1",
-    //     type: "separator",
-    //     contexts: ["all"]
-    // }, onCreated);
-
-
-
-    // browser.contextMenus.create({
-    //     id: "copy-link-to-clipboard",
-    //     title: "Copy link to clipboard",
-    //     contexts: ["link"],
-    // });
-
 
     browser.menus.onClicked.addListener((info, tab) => {
-        // switch (info.menuItemId) {
-        //     case "remove-me":
-        //         var removing = browser.menus.remove(info.menuItemId);
-        //         removing.then(onRemoved, onError);
-        //         break;
-        // }
-
-
-
-
-        //
-        getCmdsFromLocalStorage().then(function(cmds){
+        getCmdsFromLocalStorage().then(function (cmds) {
             for (const [cmdId, cmd] of Object.entries(cmds)) {
-                if (typeof cmd  !== 'undefined' && cmd.id != "" && info.menuItemId.includes(cmd.id))
-                {
+                if (typeof cmd !== 'undefined' && cmd.id != "" && info.menuItemId.includes(cmd.id)) {
                     console.log(cmd)
-                    getDevicesFromLocalStorage().then(devices => {
+                    getDevicesFromLocalStorage().then(async devices => {
                         for (const [deviceId, device] of Object.entries(devices)) {
-                            if (cmd.deviceId==device.id){
+                            if (cmd.deviceId == device.id) {
+                                var basedUrl = device.targetedApp == "join" ? "https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?" : "https://autoremotejoaomgcd.appspot.com/sendmessage?key=cYOhJMpofbU:APA91bEqZryBbjlB_VDJGPMuOLUrxsWVKt8usbwUk-M0QrNEMwjOPb7WXmQuwpHEO_S81IK8rO6WwZN598VHQbyXl-XTvkoCk31Jb6ZLsMbqIb-ILCCuzAAQXnbObqloDrxvYPD8M28C&";
+                                var formattedCmd = await getCmd(cmd, info, tab);
+                                var deviceId1 = device.targetedApp == "join" ? `deviceId=${deviceId}` : ``;
+                                var pwd = device.pwd != "" ? `&password=${device.pwd}` : "";
+                                var apiToken = device.apiToken != "" ? `&apikey=${device.apiToken}` : `key=${deviceId}`;
+                                var cmd1 = `${basedUrl}${deviceId1}${apiToken}${pwd}&${formattedCmd}`;
 
-                                // TODO: send message here
+                                fetch(cmd1)
+                                    .then(function (response) {
+                                        return response;
+                                    })
+                                    .then(function (myJson) {
+                                        console.log((myJson));
+                                    });
                             }
                         }
                     });
-
 
                     return;
                 }
             }
         });
-
-
-        // console.log(tab);
-        // console.log(info);
-
-        // Get the select page
-        console.log("he "+content.getSelection().toString());
-        console.log("pas"+document.execCommand("paste"))
-
-
-
-        // read clipboard
-        // navigator.clipboard.readText().then(text => text);
-
-
-        // Get current page url
-        // console.log(await browser.tabs.getCurrent());
-
-
-
     });
 
-    function getExtraData(cmd) {
-        if(cmd.extraData === "none")
-            return "";
-        else if (cmd.extraData === "clipboard")
-            return "";
-        else if (cmd.extraData === "currentPageUrl")
-            return "";
-        else if (cmd.extraData === "link")
-            return "";
-        else if (cmd.extraData === "selectedText")
-            return "";
 
+    async function getCmd(cmd, info, tab) {
+        cmd.cmd = cmd.cmd.replace(/{{clipboard}}/g, await navigator.clipboard.readText());
+        cmd.cmd = cmd.cmd.replace(/{{currentPageUrl}}/g, (await browser.tabs.getCurrent()).url);
+        cmd.cmd = cmd.cmd.replace(/{{link}}/g, escapeHTML(info.linkUrl));
+        cmd.cmd = cmd.cmd.replace(/{{selectedText}}/g, info.selectionText);
+
+        return cmd.cmd;
+    }
+
+
+    function escapeHTML(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;").replace(/'/g, "&#39;")
+            .replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 })
