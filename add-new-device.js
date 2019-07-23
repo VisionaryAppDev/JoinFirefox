@@ -60,17 +60,15 @@ $(function () {
 
     async function updateDeviceEvent(deviceId) {
         $(`#btnUpdateDevice${deviceId}`).click(async function () {
-            // alert(deviceId);
             if (deviceId === "") return;
 
-            // let newDeviceId = $(`#deviceId${deviceId}`).val();
             let deviceName = $(`#deviceName${deviceId}`).val();
             let apiToken = $(`#apiToken${deviceId}`).val();
             let pwd = $(`#pwd${deviceId}`).val();
             let targetedApp = $(`#targetedApp${deviceId}`).val();
 
 
-            // TODO:
+            // NOTE:
             // allow to update device id,
             // set deviceId = new device id from form
             // delete old data because add new device id will create another record
@@ -130,16 +128,13 @@ $(function () {
 
 
     async function initCmds() {
-        //
-        // $("#cmdDeviceId option").remove();
         var devices = await getDevicesFromLocalStorage();
+        var cmds = await getCmdsFromLocalStorage();
+
         for (const [deviceId, device] of Object.entries(devices)) {
             $("#cmdDeviceId").append(new Option(device.name, device.id));
         }
 
-
-        //
-        var cmds = await getCmdsFromLocalStorage();
         for (const [cmdId, cmd] of Object.entries(cmds)) {
             addNewCmdToScreen(cmd);
         }
@@ -158,12 +153,11 @@ $(function () {
         let cmdId = Date.now().toString();
         let cmdName = $("#cmdName").val();
         let cmdText = $("#cmd").val();
-        let cmdExtraData = $("#cmdExtraData").val();
 
 
 
         // read and write back to storage
-        var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId, extraData: cmdExtraData };
+        var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId };
         var cmds = await getCmdsFromLocalStorage();
         cmds[cmd.id] = cmd;
         browser.storage.local.set({ cmds: cmds });
@@ -197,12 +191,11 @@ $(function () {
             let deviceId = $(`#cmdDeviceId${cmdId}`).val();
             let cmdName = $(`#cmdName${cmdId}`).val();
             let cmdText = $(`#cmd${cmdId}`).val();
-            let cmdExtraData = $(`#cmdExtraData${cmdId}`).val();
 
 
 
             // read and write back to storage
-            var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId, extraData: cmdExtraData };
+            var cmd = { id: cmdId, name: cmdName, cmd: cmdText, deviceId: deviceId };
             var cmds = await getCmdsFromLocalStorage();
             cmds[cmd.id] = cmd;
             browser.storage.local.set({ cmds: cmds });
@@ -230,14 +223,6 @@ $(function () {
                  <label for="cmd">Command:</label>
                  <input type="text" class="form-control" id="cmd${cmd.id}" value="${cmd.cmd}">
 
-                  <label for="deviceName">Extra Data:</label>
-                    <select class="custom-select custom-select-mb" id="cmdExtraData${cmd.id}">
-                        <option value="none" ${cmd.extraData == "none" ? "selected" : ""}>None</option>
-                        <option value="clipboard" ${cmd.extraData == "clipboard" ? "selected" : ""}>Clipboard</option>
-                        <option value="currentPageUrl" ${cmd.extraData == "currentPageUrl" ? "selected" : ""}>Current Page Url</option>
-                        <option value="link" ${cmd.extraData == "link" ? "selected" : ""}>Link</option>
-                        <option value="selectedText" ${cmd.extraData == "selectedText" ? "selected" : ""}>Selected Text</option>
-                    </select>
                  <button type="button" class="btn btn-primary" id="btnSaveCmd${cmd.id}">Save</button>
                  <button type="button" class="btn btn-danger" id="btnDelCmd${cmd.id}">Delete</button>
              </div>
