@@ -40,9 +40,8 @@ $(function () {
         var devices = await getDevicesFromLocalStorage();
         devices[device.id] = device;
         browser.storage.local.set({ devices: devices });
+        browser.storage.sync.set({ devices: devices });
 
-
-        // browser.storage.sync.set({'key': 'val'});
         // browser.storage.managed.set({'key': 'val'});
         addNewDeviceToScreen(device);
     })
@@ -55,6 +54,7 @@ $(function () {
             var devices = await getDevicesFromLocalStorage();
             delete devices[deviceId];
             browser.storage.local.set({ devices: devices });
+            browser.storage.sync.set({ devices: devices });
         });
     }
 
@@ -79,6 +79,7 @@ $(function () {
             var devices = await getDevicesFromLocalStorage();
             devices[device.id] = device;
             browser.storage.local.set({ devices: devices });
+            browser.storage.sync.set({ devices: devices });
         });
     }
 
@@ -165,9 +166,7 @@ $(function () {
         var cmds = await getCmdsFromLocalStorage();
         cmds[cmd.id] = cmd;
         browser.storage.local.set({ cmds: cmds });
-
-
-        // browser.storage.sync.set({'key': 'val'});
+        browser.storage.sync.set({ cmds: cmds });
         // browser.storage.managed.set({'key': 'val'});
         addNewCmdToScreen(cmd);
     })
@@ -187,6 +186,7 @@ $(function () {
             var cmds = await getCmdsFromLocalStorage();
             delete cmds[cmdId];
             browser.storage.local.set({ cmds: cmds });
+            browser.storage.sync.set({ cmds: cmds });
         });
     }
 
@@ -203,6 +203,7 @@ $(function () {
             var cmds = await getCmdsFromLocalStorage();
             cmds[cmd.id] = cmd;
             browser.storage.local.set({ cmds: cmds });
+            browser.storage.sync.set({ cmds: cmds });
         });
     }
 
@@ -356,5 +357,52 @@ $(function () {
             .replace(/&/g, "&amp;")
             .replace(/"/g, "&quot;").replace(/'/g, "&#39;")
             .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+
+    // Backup
+    backupEvent();
+    restoreEvent();
+    async function backupEvent() {
+        $("#btnBackup").click(async function (info, tab) {
+            var devices = await getDevicesFromLocalStorage();
+            var cmds = await getCmdsFromLocalStorage();
+            var data = Object.entries({ devices: devices, cmds: cmds });
+            alert(JSON.stringify(data, null, 4));
+        })
+    }
+
+
+    async function restoreEvent() {
+        $("#btnRestore").click(async function (info, tab) {
+            var objs = prompt("Input your backup json text...", "{}");
+            var devices = await getDevicesFromLocalStorage();
+            var cmds = await getCmdsFromLocalStorage();
+
+
+            JSON.parse(objs).forEach(obj => {
+                var objType = "";
+
+                obj.forEach((item, ind) => {
+                    if (typeof item === 'string')
+                        objType = item;
+                    else if (objType === 'devices')
+                        Object.keys(item).forEach(async function (key) {
+                            var device = item[key];
+                            devices[device.id] = device;
+                        });
+                    else if (objType === 'cmds')
+                        Object.keys(item).forEach(async function (key) {
+                            var cmd = item[key];
+                            cmds[cmd.id] = cmd;
+                        });
+                })
+            });
+
+            browser.storage.local.set({ devices: devices })
+            browser.storage.sync.set({ devices: devices });
+            browser.storage.local.set({ cmds: cmds });
+            browser.storage.sync.set({ cmds: cmds });
+        })
     }
 })
