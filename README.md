@@ -15,6 +15,9 @@ For now the extension only allows you to log-in and use the right click menu to 
 - Send message to Join or Autoremote without signin gmail account but no original feature available
 - I have comment out original code because I normally don't sign in my gmail account and original code always open browser tab by itself when I open browser. (Wish I could add them together if possible)
 
+![Sample 1](sample1.png)
+![Sample 2](sample2.png)
+
 ## Download Link
 [Download](join_by_joaoapps.xpi)
 
