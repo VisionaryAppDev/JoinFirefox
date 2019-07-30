@@ -41,6 +41,7 @@ $(function () {
         devices[device.id] = device;
         browser.storage.local.set({ devices: devices });
         browser.storage.sync.set({ devices: devices });
+        browser.tabs.reload();
 
         // browser.storage.managed.set({'key': 'val'});
         addNewDeviceToScreen(device);
@@ -55,6 +56,8 @@ $(function () {
             delete devices[deviceId];
             browser.storage.local.set({ devices: devices });
             browser.storage.sync.set({ devices: devices });
+            browser.menus.remove(`device${deviceId}`);
+            browser.tabs.reload();
         });
     }
 
@@ -80,6 +83,7 @@ $(function () {
             devices[device.id] = device;
             browser.storage.local.set({ devices: devices });
             browser.storage.sync.set({ devices: devices });
+            browser.tabs.reload();
         });
     }
 
@@ -169,6 +173,7 @@ $(function () {
         browser.storage.sync.set({ cmds: cmds });
         // browser.storage.managed.set({'key': 'val'});
         addNewCmdToScreen(cmd);
+        browser.tabs.reload();
     })
 
     async function getCmdsFromLocalStorage() {
@@ -187,6 +192,8 @@ $(function () {
             delete cmds[cmdId];
             browser.storage.local.set({ cmds: cmds });
             browser.storage.sync.set({ cmds: cmds });
+            browser.menus.remove(`cmd${cmdId}`);
+            browser.tabs.reload();
         });
     }
 
@@ -204,6 +211,7 @@ $(function () {
             cmds[cmd.id] = cmd;
             browser.storage.local.set({ cmds: cmds });
             browser.storage.sync.set({ cmds: cmds });
+            browser.tabs.reload();
         });
     }
 
@@ -330,6 +338,8 @@ $(function () {
 
         fetch(requestUrl).then(function (response) {
             console.log(response);
+        }).catch(function (error){
+            console.log(error);
         })
     }
 
