@@ -2,7 +2,7 @@
     "name": "Join by joaoapps",
     "short_name": "Join",
     "description": "Bring your devices together",
-    "version": "1.0.18",
+    "version": "1.0.18.0",
     "permissions": [
         "storage",
         "webRequest",
@@ -33,7 +33,6 @@
     },
     "browser_action": {
         "browser_style": true,
-        "default_icon": "icon/con.png",
         "default_popup": "devices.html"
     },
     "web_accessible_resources": [
